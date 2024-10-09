@@ -33,12 +33,19 @@ splash_image = custom_target('splash-image-header',
   install : false
 )
 
+bar_image = custom_target('bar-image-header',
+  output : 'psplash-bar-img.h',
+  input : 'base-images/psplash-bar.png',
+  command : ['bash', meson.current_source_dir() / './make-image-header.sh', '@INPUT@', 'BAR'],
+  install : false
+)
+
 # Source files
 psplash_sources = files(
   'psplash.c',
   'psplash-fb.c',
   'psplash-console.c',
-) + splash_image
+) + splash_image + bar_image
 
 # psplash executable
 executable('psplash',

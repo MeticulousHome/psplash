@@ -1,0 +1,26 @@
+Source: psplash
+Section: admin
+Priority: optional
+Maintainer: Mimoja <mimoja@meticuloushome.com>
+Rules-Requires-Root: no
+Build-Depends:
+ debhelper-compat (= 13),
+ meson,
+ libsystemd-dev,
+Standards-Version: 4.6.2
+Homepage: https://github.com/MeticulousHome/rauc-hawkbit-updater
+
+
+Package: psplash
+Architecture: any
+Multi-Arch: foreign
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends},
+ systemd,
+Description: psplash bootsplash for embedded Linux systems
+ The psplash bootsplash is a simple framebuffer-based bootsplash
+ that is loaded during early boot to provide a visually attractive
+ screen background (in place of the default console text) to the user.
+ It has been forked from the original psplash yocto project and modified
+ to work in the meticulous espresso machine.
