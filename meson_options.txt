@@ -1,7 +1,7 @@
 option(
   'systemd',
   type : 'feature',
-  value : 'disabled',
+  value : 'enabled',
   description : 'Build for systemd (sd-notify support)'
   )
 
