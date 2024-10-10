@@ -15,7 +15,7 @@ add_project_arguments(c_args, language : 'c')
 systemd_dep = dependency('systemd', required : get_option('systemd'))
 libsystemd_dep = dependency('libsystemd', required : get_option('systemd'))
 
-if systemd_dep.found()
+if systemd_dep.found() and libsystemd_dep.found()
   add_global_arguments('-DHAVE_SYSTEMD', language : 'c')
 
   systemdsystemunitdir = get_option('systemdsystemunitdir')
@@ -61,9 +61,11 @@ psplash_write = executable('psplash-write',
   install: true,
 )
 
-# psplash-systemd
-psplash_systemd = executable('psplash-systemd',
-  'psplash-systemd.c',
-  install: true,
-  dependencies: libsystemd_dep
-)
+if systemd_dep.found()
+  # psplash-systemd
+  psplash_systemd = executable('psplash-systemd',
+    'psplash-systemd.c',
+    install: true,
+    dependencies: libsystemd_dep
+  )
+endif
