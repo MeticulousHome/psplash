@@ -6,7 +6,7 @@ ConditionFileIsExecutable=/usr/bin/psplash
 
 [Service]
 Type=notify
-ExecStart=/usr/bin/psplash  -a 90 -f 0
+ExecStart=/usr/bin/psplash -n -a 90 -f 0
 RemainAfterExit=yes
 
 [Install]
