@@ -13,8 +13,7 @@
 #include "psplash.h"
 #include "psplash-config.h"
 #include "psplash-colors.h"
-#include "psplash-poky-img.h"
-#include "psplash-bar-img.h"
+#include "psplash-logo-img.h"
 #ifdef HAVE_SYSTEMD
 #include <systemd/sd-daemon.h>
 #endif
@@ -67,11 +66,13 @@ psplash_draw_progress (PSplashFB *fb, int value)
 {
   int x, y, width, height, barwidth;
 
+#define BAR_HEIGHT 25
+#define BAR_WIDTH 300
   /* 4 pix border */
-  x      = ((fb->width  - BAR_IMG_WIDTH)/2) + 4 ;
+  x      = ((fb->width  - BAR_WIDTH)/2) + 4 ;
   y      = SPLIT_LINE_POS(fb) + 4;
-  width  = BAR_IMG_WIDTH - 8; 
-  height = BAR_IMG_HEIGHT - 8;
+  width  = BAR_WIDTH - 8;
+  height = BAR_HEIGHT - 8;
 
   if (value > 0)
     {
@@ -95,6 +96,8 @@ psplash_draw_progress (PSplashFB *fb, int value)
 
   DBG("value: %i, width: %i, barwidth :%i\n", value, 
 		width, barwidth);
+
+
 }
 #endif /* PSPLASH_SHOW_PROGRESS_BAR */
 
@@ -297,36 +300,26 @@ main (int argc, char** argv)
 #endif
 
   /* Clear the background with #ecece1 */
-  psplash_fb_draw_rect (fb, 0, 0, fb->width, fb->height,
+/*  psplash_fb_draw_rect (fb, 0, 0, fb->width, fb->height,
                         PSPLASH_BACKGROUND_COLOR);
-
+*/
   /* Draw the Poky logo  */
   psplash_fb_draw_image (fb, 
-			 (fb->width  - POKY_IMG_WIDTH)/2, 
+			 (fb->width  - LOGO_IMG_WIDTH)/2, 
 #if PSPLASH_IMG_FULLSCREEN
-			 (fb->height - POKY_IMG_HEIGHT)/2,
+			 (fb->height - LOGO_IMG_HEIGHT)/2,
 #else
 			 (fb->height * PSPLASH_IMG_SPLIT_NUMERATOR
-			  / PSPLASH_IMG_SPLIT_DENOMINATOR - POKY_IMG_HEIGHT)/2,
+			  / PSPLASH_IMG_SPLIT_DENOMINATOR - LOGO_IMG_HEIGHT)/2,
 #endif
-			 POKY_IMG_WIDTH,
-			 POKY_IMG_HEIGHT,
-			 POKY_IMG_BYTES_PER_PIXEL,
-			 POKY_IMG_ROWSTRIDE,
-			 POKY_IMG_RLE_PIXEL_DATA);
+			 LOGO_IMG_WIDTH,
+			 LOGO_IMG_HEIGHT,
+			 LOGO_IMG_BYTES_PER_PIXEL,
+			 LOGO_IMG_ROWSTRIDE,
+			 LOGO_IMG_RLE_PIXEL_DATA);
 
 #ifdef PSPLASH_SHOW_PROGRESS_BAR
-  /* Draw progress bar border */
-  psplash_fb_draw_image (fb, 
-			 (fb->width  - BAR_IMG_WIDTH)/2, 
-			 SPLIT_LINE_POS(fb),
-			 BAR_IMG_WIDTH,
-			 BAR_IMG_HEIGHT,
-			 BAR_IMG_BYTES_PER_PIXEL,
-			 BAR_IMG_ROWSTRIDE,
-			 BAR_IMG_RLE_PIXEL_DATA);
-
-  psplash_draw_progress (fb, 0);
+  psplash_draw_progress (fb, 5);
 #endif
 
 #ifdef PSPLASH_STARTUP_MSG

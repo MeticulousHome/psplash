@@ -1,4 +1,8 @@
-project('psplash', 'c', version: '1.0', default_options: ['warning_level=3', 'buildtype=debugoptimized'])
+project('psplash',
+ 'c',
+  version: '1.0',
+  default_options: ['warning_level=3', 'buildtype=debugoptimized'],
+)
 
 c_args = '''
   -Wbad-function-cast
@@ -26,17 +30,10 @@ if systemd_dep.found() and libsystemd_dep.found()
   install_data('systemd/psplash-systemd.service', install_dir : systemdsystemunitdir)
 endif
 
-splash_image = custom_target('splash-image-header',
-  output : 'psplash-poky-img.h',
-  input : 'base-images/psplash-poky.png',
-  command : ['bash', meson.current_source_dir() / './make-image-header.sh', '@INPUT@', 'POKY'],
-  install : false
-)
-
-bar_image = custom_target('bar-image-header',
-  output : 'psplash-bar-img.h',
-  input : 'base-images/psplash-bar.png',
-  command : ['bash', meson.current_source_dir() / './make-image-header.sh', '@INPUT@', 'BAR'],
+logo_image = custom_target('logo-image-header',
+  output : 'psplash-logo-img.h',
+  input : 'base-images/psplash-logo.png',
+  command : ['bash', meson.current_source_dir() / './make-image-header.sh', '@INPUT@', 'LOGO'],
   install : false
 )
 
@@ -45,7 +42,7 @@ psplash_sources = files(
   'psplash.c',
   'psplash-fb.c',
   'psplash-console.c',
-) + splash_image + bar_image
+) + logo_image
 
 # psplash executable
 executable('psplash',
