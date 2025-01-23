@@ -18,7 +18,7 @@
 #define PSPLASH_TEXT_COLOR 0xFF,0xFF,0xFF
 
 /* This is the color of the progress bar indicator */
-#define PSPLASH_BAR_COLOR 0xff,0x69,0x00
+#define PSPLASH_BAR_COLOR 0xFF,0xFF,0xFF
 
 /* This is the color of the progress bar background */
 #define PSPLASH_BAR_BACKGROUND_COLOR 0x00,0x00,0x00
