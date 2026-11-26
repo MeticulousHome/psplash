@@ -1,3 +1,11 @@
+psplash (0.2.0) bookworm; urgency=medium
+
+  * Light theme, picked at start by --theme-file (the Dial's boot theme,
+    /var/lib/meticulous-dial/boot-theme): its logo and colors match the
+    Dial's light theme; dark stays the default.
+
+ -- Meticulous <software@meticuloushome.com>  Wed, 25 Nov 2026 18:20:49 -0600
+
 psplash (0.1.0) bookworm; urgency=medium
 
   * Initial import from yocto

@@ -14,6 +14,7 @@
 #include "psplash-config.h"
 #include "psplash-colors.h"
 #include "psplash-logo-img.h"
+#include "psplash-logo-light-img.h"
 #ifdef HAVE_SYSTEMD
 #include <systemd/sd-daemon.h>
 #endif
@@ -25,6 +26,64 @@
 	     - PSPLASH_IMG_SPLIT_NUMERATOR)                 \
 	    * (fb)->height / PSPLASH_IMG_SPLIT_DENOMINATOR) \
 	)
+
+/* The colors and the picture of a theme. The dark one is the default; the light one is shown when the
+ * theme file (--theme-file) says "light". */
+typedef struct PSplashColor
+{
+  uint8 r, g, b;
+} PSplashColor;
+
+typedef struct PSplashTheme
+{
+  PSplashColor background, text, bar, bar_background;
+  int          img_width, img_height, img_bytes_per_pixel, img_rowstride;
+  uint8       *img_rle_pixel_data;
+} PSplashTheme;
+
+#define RGB(c) (c).r, (c).g, (c).b
+
+static const PSplashTheme dark_theme =
+{
+  { PSPLASH_BACKGROUND_COLOR }, { PSPLASH_TEXT_COLOR },
+  { PSPLASH_BAR_COLOR }, { PSPLASH_BAR_BACKGROUND_COLOR },
+  LOGO_IMG_WIDTH, LOGO_IMG_HEIGHT, LOGO_IMG_BYTES_PER_PIXEL, LOGO_IMG_ROWSTRIDE,
+  LOGO_IMG_RLE_PIXEL_DATA
+};
+
+static const PSplashTheme light_theme =
+{
+  { PSPLASH_LIGHT_BACKGROUND_COLOR }, { PSPLASH_LIGHT_TEXT_COLOR },
+  { PSPLASH_LIGHT_BAR_COLOR }, { PSPLASH_LIGHT_BAR_BACKGROUND_COLOR },
+  LOGO_LIGHT_IMG_WIDTH, LOGO_LIGHT_IMG_HEIGHT, LOGO_LIGHT_IMG_BYTES_PER_PIXEL, LOGO_LIGHT_IMG_ROWSTRIDE,
+  LOGO_LIGHT_IMG_RLE_PIXEL_DATA
+};
+
+static const PSplashTheme *theme = &dark_theme;
+
+/* The theme in the file: "light" (surrounding whitespace allowed) is the light one, anything else, or no
+ * file, the dark one. The Dial writes it when its theme changes; it lives on the root file system, which is
+ * mounted before psplash starts. */
+static const PSplashTheme *
+psplash_read_theme (const char *path)
+{
+  char   buf[16];
+  size_t n, start = 0;
+  FILE  *file = fopen (path, "r");
+
+  if (!file)
+    return &dark_theme;
+
+  n = fread (buf, 1, sizeof (buf) - 1, file);
+  fclose (file);
+  buf[n] = '\0';
+  while (start < n && strchr (" \t\r\n", buf[start]))
+    start++;
+  while (n > start && strchr (" \t\r\n", buf[n - 1]))
+    buf[--n] = '\0';
+
+  return strcmp (buf + start, "light") == 0 ? &light_theme : &dark_theme;
+}
 
 void
 psplash_exit (int UNUSED(signum))
@@ -50,12 +109,12 @@ psplash_draw_msg (PSplashFB *fb, const char *msg)
 			SPLIT_LINE_POS(fb) - h, 
 			fb->width,
 			h,
-			PSPLASH_BACKGROUND_COLOR);
+			RGB (theme->background));
 
   psplash_fb_draw_text (fb,
 			(fb->width-w)/2, 
 			SPLIT_LINE_POS(fb) - h,
-			PSPLASH_TEXT_COLOR,
+			RGB (theme->text),
 			&FONT_DEF,
 			msg);
 }
@@ -79,19 +138,19 @@ psplash_draw_progress (PSplashFB *fb, int value)
       barwidth = (CLAMP(value,0,100) * width) / 100;
       psplash_fb_draw_rect (fb, x + barwidth, y, 
     			width - barwidth, height,
-			PSPLASH_BAR_BACKGROUND_COLOR);
+			RGB (theme->bar_background));
       psplash_fb_draw_rect (fb, x, y, barwidth,
-			    height, PSPLASH_BAR_COLOR);
+			    height, RGB (theme->bar));
     }
   else
     {
       barwidth = (CLAMP(-value,0,100) * width) / 100;
       psplash_fb_draw_rect (fb, x, y, 
     			width - barwidth, height,
-			PSPLASH_BAR_BACKGROUND_COLOR);
+			RGB (theme->bar_background));
       psplash_fb_draw_rect (fb, x + width - barwidth,
 			    y, barwidth, height,
-			    PSPLASH_BAR_COLOR);
+			    RGB (theme->bar));
     }
 
   DBG("value: %i, width: %i, barwidth :%i\n", value, 
@@ -255,9 +314,17 @@ main (int argc, char** argv)
         continue;
       }
 
+    if (!strcmp(argv[i],"-t") || !strcmp(argv[i],"--theme-file"))
+      {
+        if (++i >= argc) goto fail;
+        theme = psplash_read_theme (argv[i]);
+        continue;
+      }
+
     fail:
       fprintf(stderr, 
-              "Usage: %s [-n|--no-console-switch][-a|--angle <0|90|180|270>][-f|--fbdev <0..9>]\n", 
+              "Usage: %s [-n|--no-console-switch][-a|--angle <0|90|180|270>][-f|--fbdev <0..9>]"
+              "[-t|--theme-file <file>]\n", 
               argv[0]);
       exit(-1);
   }
@@ -305,18 +372,18 @@ main (int argc, char** argv)
 */
   /* Draw the Poky logo  */
   psplash_fb_draw_image (fb, 
-			 (fb->width  - LOGO_IMG_WIDTH)/2, 
+			 (fb->width  - theme->img_width)/2, 
 #if PSPLASH_IMG_FULLSCREEN
-			 (fb->height - LOGO_IMG_HEIGHT)/2,
+			 (fb->height - theme->img_height)/2,
 #else
 			 (fb->height * PSPLASH_IMG_SPLIT_NUMERATOR
-			  / PSPLASH_IMG_SPLIT_DENOMINATOR - LOGO_IMG_HEIGHT)/2,
+			  / PSPLASH_IMG_SPLIT_DENOMINATOR - theme->img_height)/2,
 #endif
-			 LOGO_IMG_WIDTH,
-			 LOGO_IMG_HEIGHT,
-			 LOGO_IMG_BYTES_PER_PIXEL,
-			 LOGO_IMG_ROWSTRIDE,
-			 LOGO_IMG_RLE_PIXEL_DATA);
+			 theme->img_width,
+			 theme->img_height,
+			 theme->img_bytes_per_pixel,
+			 theme->img_rowstride,
+			 theme->img_rle_pixel_data);
 
 #ifdef PSPLASH_SHOW_PROGRESS_BAR
   psplash_draw_progress (fb, 5);

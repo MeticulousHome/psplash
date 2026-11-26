@@ -37,12 +37,19 @@ logo_image = custom_target('logo-image-header',
   install : false
 )
 
+logo_light_image = custom_target('logo-light-image-header',
+  output : 'psplash-logo-light-img.h',
+  input : 'base-images/psplash-logo-light.png',
+  command : ['bash', meson.current_source_dir() / './make-image-header.sh', '@INPUT@', 'LOGO_LIGHT'],
+  install : false
+)
+
 # Source files
 psplash_sources = files(
   'psplash.c',
   'psplash-fb.c',
   'psplash-console.c',
-) + logo_image
+) + logo_image + logo_light_image
 
 # psplash executable
 executable('psplash',

@@ -23,4 +23,11 @@
 /* This is the color of the progress bar background */
 #define PSPLASH_BAR_BACKGROUND_COLOR 0x00,0x00,0x00
 
+/* The light theme (--theme-file): the Dial's light background and text colors (meticulous-dial
+ * qt/qml/Dial/Core/Theme.qml), so that the boot looks the same until the Dial takes over. */
+#define PSPLASH_LIGHT_BACKGROUND_COLOR 0xF3,0xF0,0xE9
+#define PSPLASH_LIGHT_TEXT_COLOR 0x1C,0x1A,0x17
+#define PSPLASH_LIGHT_BAR_COLOR 0x1C,0x1A,0x17
+#define PSPLASH_LIGHT_BAR_BACKGROUND_COLOR 0xF3,0xF0,0xE9
+
 #endif
